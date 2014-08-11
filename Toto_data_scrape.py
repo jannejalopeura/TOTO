@@ -44,25 +44,39 @@ for line in dataRaw1('div',{'class':'data'})[0].findAll('a',href=True):
 import pandas as pd
 data_to_sql = pd.DataFrame()
 dataRacingHistoryRaw1 = []
-listOfHorseId = [listOfHorseId[1],listOfHorseId[0]]
+#listOfHorseId = [listOfHorseId[1],listOfHorseId[0]]
 print listOfHorseId
 for HorseId in listOfHorseId:
     print HorseId
     RacingDataRaw=BeautifulSoup(urllib2.urlopen('http://heppa.hippos.fi/heppa/horse/RacingHistory,$HorseSearchResult.$HorseLink.$DirectLink.sdirect?sp='+str(HorseId)+'&sp=X'))
     print 'http://heppa.hippos.fi/heppa/horse/RacingHistory,$HorseSearchResult.$HorseLink.$DirectLink.sdirect?sp='+str(HorseId)+'&sp=X'
     HeaderRow=['HorseId','Name']
-    for header in RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr')[0].findAll('th'):
+    try:
+        for header in RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr')[0].findAll('th'):
         #print header.getText().strip()
-        HeaderRow.append(header.getText().strip())
-    Rows = []
-    dataLen= len(RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr'))
-    dataRange = [i+1 for i in range(dataLen-1)]
-    for i in dataRange:
-        row =  RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr')[i].findAll('td')
-        Row = [HorseId,dict(listOfHorseIdandName)[HorseId]]
-        for column in row:
-            Row.append(column.getText().strip())
-        Rows.append(Row)
+            HeaderRow.append(header.getText().strip())
+        Rows = []
+        dataLen= len(RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr'))
+        dataRange = [i+1 for i in range(dataLen-1)]
+        for i in dataRange:
+            row =  RacingDataRaw('table',{'class':'sortable'})[1].findAll('tr')[i].findAll('td')
+            Row = [HorseId,dict(listOfHorseIdandName)[HorseId]]
+            for column in row:
+                Row.append(column.getText().strip())
+            Rows.append(Row)
+    except:
+        for header in RacingDataRaw('table',{'class':'sortable'})[0].findAll('tr')[0].findAll('th'):
+        #print header.getText().strip()
+            HeaderRow.append(header.getText().strip())
+        Rows = []
+        dataLen= len(RacingDataRaw('table',{'class':'sortable'})[0].findAll('tr'))
+        dataRange = [i+1 for i in range(dataLen-1)]
+        for i in dataRange:
+            row =  RacingDataRaw('table',{'class':'sortable'})[0].findAll('tr')[i].findAll('td')
+            Row = [HorseId,dict(listOfHorseIdandName)[HorseId]]
+            for column in row:
+                Row.append(column.getText().strip())
+            Rows.append(Row)
     data_to_sql_HorseId = pd.DataFrame(Rows)
     data_to_sql_HorseId.to_csv('/home/janne/toto/data_1.tsv',header=False,index=False,sep='\t',mode='a',encoding='utf-8')
     #print data_to_sql_HorseId
